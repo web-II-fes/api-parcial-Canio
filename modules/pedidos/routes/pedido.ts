@@ -1,6 +1,5 @@
 import * as express from 'express';
 import { pedidoSchema } from './../schemas/pedido';
-import { resolve } from 'path';
 
 const router = express.Router();
 
@@ -14,7 +13,7 @@ router.get('/pedido', async (req, res, next) => {
 	});
 });
 
-router.get("/pedido/:id", async (req, res) => {
+router.get("/pedidoId/:id", async (req, res) => {
   let idPedido = req.params.id;
   try {
     let pedidos = await pedidoSchema.findById(idPedido);
@@ -25,32 +24,31 @@ router.get("/pedido/:id", async (req, res) => {
 });
 
 
-router.post('/pedido', (req, res) => {
-  
-  const pedido = new pedidoSchema(req.body);
-  pedido.save(function(err, pedido){
-    if (err) {
-      return err;
-    }
-    res.json(pedido);
-  });
+router.post('/pedido', async (req, res) => {
+  try {
+      const pedido = new pedidoSchema(req.body);
+      let pedidoNuevo = await pedido.save();
+
+      res.send(pedidoNuevo);
+  } catch (err) {
+      throw err;
+  }
 });
 
 
 
-router.put('/pedido/:_id', (req, res, next) => {
+router.put('/pedido/:id', async (req, res, next) => {
+  try {
+      let pedido = await pedidoSchema.findByIdAndUpdate(req.params.id, req.body);
 
-    pedidoSchema.findByIdAndUpdate(req.params._id, req.body, { new : true}, (err, pedido) => {
-    if (err){
-      return err;
-    }
-
-    return res.send(pedido);
-  });
+      res.send(pedido);
+  } catch (err) {
+      throw err;
+  }
 });
 
 
-router.delete('/pedido/:_id', (req, res, next) => {
+router.delete('/pedido/:_id', async (req, res, next) => {
   
     pedidoSchema.findByIdAndRemove(req.params._id, (err, pedido) => {
     if (err) {
